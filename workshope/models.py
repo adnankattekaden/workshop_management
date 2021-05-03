@@ -11,7 +11,12 @@ class Client(models.Model):
     zipcode = models.CharField(max_length=6)
 
 class VehicleType(models.Model):
-    name = models.CharField(max_length=50)
+    vehicle_types = (
+        ('Car','Car'),
+        ('Bike','Bike'),
+    )
+
+    name = models.CharField(max_length=50,choices=vehicle_types)
     blueprint_image = models.FileField(upload_to='blueprint')
 
 
@@ -53,9 +58,7 @@ class JobCard(models.Model):
     datetime = models.DateTimeField()
     job_card_types = models.CharField(max_length=15,choices=job_card_types)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
-
-
-    Remarks = models.ManyToManyField(VehicleRemarks)
+    remarks = models.ManyToManyField(VehicleRemarks)
     tracking_id = models.CharField(max_length=50)
     estimate_amount = models.FloatField()
     spares_realted_info = models.ManyToManyField(SparesInformation)
