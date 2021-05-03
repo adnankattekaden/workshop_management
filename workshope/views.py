@@ -143,6 +143,27 @@ class CreateJobCard(APIView):
         jobcard.remarks.add(remarks_id)
         return Response({"status":"wowow"})
 
+class EditJobCard(APIView):
+    def get(self,request,id):
+        job_card_details = JobCard.objects.get(id=id)
+        if job_card_details:
+            job_card_serializer = JobCardSerializer(job_card_details,many=False)
+            return Response(job_card_serializer.data)
+        else:
+            return Response({"status":"no jobs items right now"})
+
+    def put(self,request,id):
+        job_card_details = JobCard.objects.get(id=id)
+        if job_card_details:
+            payment_status = request.data['payment_status']
+            job_status = request.data['job_status']
+            job_card_details.job_status = job_status
+            job_card_details.payment_status = payment_status
+            job_card_details.save()
+            return Response({'status':'updated'})
+        else:
+            return Response({'status':'no job right now'})
+
 class SparesInformationView(APIView):
     def get(self,request,id):
         jobcard = JobCard.objects.get(id=id)
@@ -161,3 +182,13 @@ class SparesInformationView(APIView):
         spares_info = SparesInformation.objects.create(name=spares_name,description=description,amount=amount)
         jobcard.spares_realted_info.add(spares_info)
         return Response({'status':'woow'})
+
+class TrackingView(APIView):
+    def get(self,request,tracking_id):
+        tracking_view = JobCard.objects.get(tracking_id=tracking_id)
+        if tracking_view:
+            job_card_details = JobCardSerializer(tracking_view,many=False)
+            return Response(job_card_details.data)
+        else:
+            return Response({"status":"no items avialable"})
+
