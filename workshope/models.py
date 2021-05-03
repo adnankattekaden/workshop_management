@@ -15,15 +15,14 @@ class VehicleType(models.Model):
         ('Car','Car'),
         ('Bike','Bike'),
     )
-
     name = models.CharField(max_length=50,choices=vehicle_types)
     blueprint_image = models.FileField(upload_to='blueprint')
 
 
 class Vehicle(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
-    vehicle_name = models.CharField(max_length=50)
     vehicle_type = models.ForeignKey(VehicleType, on_delete=models.CASCADE)
+    vehicle_name = models.CharField(max_length=50)
     vehicle_number = models.CharField(max_length=20)
 
 class VehicleRemarksAttachments(models.Model):
@@ -55,7 +54,7 @@ class JobCard(models.Model):
         ('Delivered','Delivered'),
     )
 
-    datetime = models.DateTimeField()
+    datetime = models.DateTimeField(auto_now_add=True)
     job_card_types = models.CharField(max_length=15,choices=job_card_types)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     remarks = models.ManyToManyField(VehicleRemarks)
