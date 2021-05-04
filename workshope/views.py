@@ -15,7 +15,6 @@ import uuid
 class CreateClientDetails(APIView):
     def get(self,request):
         client_data = Client.objects.all()
-
         if client_data:
             client_serialize = ClientSerializer(client_data,many=True)
             return Response(client_serialize.data)
@@ -58,6 +57,16 @@ class EditClientDetails(APIView):
     def delete(self,request,id):
         client_details =  Client.objects.get(id=id).delete()
         return Response({"status":"item Deleted"})
+
+class AutoFetchNumber(APIView):
+    def get(self,request):
+        mobile_number = request.query_params['mobile_number']
+        client_data = Client.objects.filter(mobile_number=mobile_number)
+        if client_data:
+            client_data_serializer = ClientSerializer(client_data,many=True)
+            return Response(client_data_serializer.data)
+        else:
+            return Response({"status":"nope"})
 
 class CreateVehicleDetaills(APIView):
     def get(self,request):
@@ -114,6 +123,17 @@ class EditVehicleDetaills(APIView):
     def delete(self,request,id):
         Vehicle.objects.get(id=id).delete()
         return Response({'status':"deleted"})
+
+class AutoFetchVehicle(APIView):
+    def get(self,request):
+        client_id = request.query_params['client_id']
+        client = Client.objects.get(id=client_id)
+        vehicles = Vehicle.objects.filter(client=client)
+        if vehicles:
+            vehicle_serializer = VehicleSerializer(vehicles,many=True)
+            return Response(vehicle_serializer.data)
+        else:
+            return Response({"status":"no_vehicles"})
 
 class CreateJobCard(APIView):
     def get(self,request):
@@ -236,7 +256,6 @@ class RaiseTicket(APIView):
         Tickets.objects.create(client=client_id,subject=subject,message=message)
         return Response({'status':'woo'})
 
-#dashboard
 class CloseTicket(APIView):
     def get(self,request):
         ticket = Tickets.objects.all()
@@ -258,4 +277,11 @@ class CloseTicket(APIView):
         close_ticket.save()
         return Response({"status":"ticket Closed"})
 
-
+class Invoicing(APIView):
+    def get(self,request):
+        invoices = JobCard.objects.filter(payment_status='Complete')
+        if invoices:
+            job_card_serializer = JobCardSerializer(invoices,many=True)
+            return Response(job_card_serializer.data)
+        else:
+            return Response({"status":'no invoices'})

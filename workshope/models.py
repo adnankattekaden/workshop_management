@@ -63,7 +63,6 @@ class JobCard(models.Model):
     job_status = models.CharField(max_length=25,choices=job_status_options)
     payment_status = models.CharField(max_length=30,default='pending')
 
-
 class Tickets(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     subject = models.CharField(max_length=25)
@@ -71,5 +70,4 @@ class Tickets(models.Model):
     replay = models.TextField(blank=True)
     attachments = models.FileField(blank=True,upload_to='replay_attachments')
     status = models.BooleanField(default=False)
-
 

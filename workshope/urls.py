@@ -14,5 +14,7 @@ urlpatterns = [
     path('sales-report/',views.SalesReportView.as_view(),name='sales_report'),
     path('raise-an-ticket/',views.RaiseTicket.as_view(),name='raise_an_ticket'),
     path('close-ticket/',views.CloseTicket.as_view(),name='close_an_ticket'),
-    
+    path('auto-fetch-number/',views.AutoFetchNumber.as_view(),name='auto_fetch_number'),
+    path('auto-fetch-vehicle/',views.AutoFetchVehicle.as_view(),name='auto_fetch_vehicle'),   
+    path('invoices/',views.Invoicing.as_view(),name='invoices'),
 ]
