@@ -3,8 +3,8 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User,auth
-from  workshope.models import Client,Vehicle,VehicleType,JobCard,VehicleRemarks,SparesInformation
-from workshope.serializers import ClientSerializer,VehicleSerializer,VehicleTypeSerializer,JobCardSerializer,SparesInformationSerializer
+from  workshope.models import Client,Vehicle,VehicleType,JobCard,VehicleRemarks,SparesInformation,Tickets
+from workshope.serializers import ClientSerializer,VehicleSerializer,VehicleTypeSerializer,JobCardSerializer,SparesInformationSerializer,TicketsSerializer
 from rest_framework import status
 from django.http import Http404
 import uuid
@@ -191,4 +191,71 @@ class TrackingView(APIView):
             return Response(job_card_details.data)
         else:
             return Response({"status":"no items avialable"})
+
+class ListingJobs(APIView):
+    def get(self,request,status):
+        jobs_data = JobCard.objects.filter(job_status=status)
+        if jobs_data:
+            jobs_data_serializer = JobCardSerializer(jobs_data,many=True)
+            return Response(jobs_data_serializer.data)
+        else:
+            return Response({"status":"no jobs avialable"})
+
+#admin only
+class SalesReportView(APIView):
+    def get(self,request):
+        from_date = request.query_params['from_date']
+        to_date = request.query_params['to_date']
+        sales_report = JobCard.objects.filter(date__range=[from_date,to_date],payment_status='Complete')
+        if sales_report:
+            sales_report_serializer = JobCardSerializer(sales_report,many=True)
+            return Response(sales_report_serializer.data)
+        else:
+            return Response({"status":"no reports available"})
+
+#still didnt got idea what items to fetch
+class Notifications(APIView):
+    def get(self,request):
+        return Response({"status":"go sent data her"})
+
+class RaiseTicket(APIView):
+    def get(self,request):
+        ticket_id = request.query_params['ticket_id']
+        ticket = Tickets.objects.get(id=ticket_id)
+        if ticket:
+            ticket_serializer = TicketsSerializer(ticket,many=False)
+            return Response(ticket_serializer.data)
+        else:
+            return Response({"status":"no tickets"})
+
+    def post(self,request):
+        jobcard_id = request.data['jobcard_id']
+        subject = request.data['subject']
+        message = request.data['message']
+        client_id = JobCard.objects.get(id=jobcard_id).vehicle.client
+        Tickets.objects.create(client=client_id,subject=subject,message=message)
+        return Response({'status':'woo'})
+
+#dashboard
+class CloseTicket(APIView):
+    def get(self,request):
+        ticket = Tickets.objects.all()
+        if ticket:
+            ticket_serializer = TicketsSerializer(ticket,many=True)
+            return Response(ticket_serializer.data)
+        else:
+            return Response({'status':'No tickets right now'})
+
+    def put(self,request):
+        ticket_id = request.data['ticket_id']
+        replay = request.data['replay']
+        replay_attachments = request.FILES['attachments']
+        close_ticket = Tickets.objects.get(id=ticket_id)
+        print(replay,'hhhe')
+        close_ticket.replay = replay
+        close_ticket.attachments = replay_attachments
+        close_ticket.status = True
+        close_ticket.save()
+        return Response({"status":"ticket Closed"})
+
 

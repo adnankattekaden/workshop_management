@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from workshope.models import Client,Vehicle,VehicleType,JobCard,SparesInformation
+from workshope.models import Client,Vehicle,VehicleType,JobCard,SparesInformation,Tickets
 
 class ClientSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,4 +29,8 @@ class SparesInformationSerializer(serializers.ModelSerializer):
         model = SparesInformation
         fields = '__all__'
 
+class TicketsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tickets
+        fields = '__all__'
         

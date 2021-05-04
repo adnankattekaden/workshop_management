@@ -10,5 +10,9 @@ urlpatterns = [
     path('edit-job-card/<int:id>/',views.EditJobCard.as_view(),name='edit_JobCard'),
     path('add-spares/<int:id>/',views.SparesInformationView.as_view(),name='add_spares'),
     path('tracking/<str:tracking_id>/',views.TrackingView.as_view(),name='tracking_view'),
+    path('fetch-jobs-data/<str:status>/',views.ListingJobs.as_view(),name='fetch_jobs_data'),
+    path('sales-report/',views.SalesReportView.as_view(),name='sales_report'),
+    path('raise-an-ticket/',views.RaiseTicket.as_view(),name='raise_an_ticket'),
+    path('close-ticket/',views.CloseTicket.as_view(),name='close_an_ticket'),
     
 ]

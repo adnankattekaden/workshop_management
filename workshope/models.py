@@ -2,7 +2,6 @@ from django.db import models
 
 # Create your models here.
 
-    
 class Client(models.Model):
     name = models.CharField(max_length=30)
     mobile_number = models.CharField(max_length=10)
@@ -17,7 +16,6 @@ class VehicleType(models.Model):
     )
     name = models.CharField(max_length=50,choices=vehicle_types)
     blueprint_image = models.FileField(upload_to='blueprint')
-
 
 class Vehicle(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -54,7 +52,8 @@ class JobCard(models.Model):
         ('Delivered','Delivered'),
     )
 
-    datetime = models.DateTimeField(auto_now_add=True)
+    date = models.DateField(auto_now_add=True)
+    time = models.TimeField(auto_now_add=True)
     job_card_types = models.CharField(max_length=15,choices=job_card_types)
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE)
     remarks = models.ManyToManyField(VehicleRemarks)
@@ -64,5 +63,13 @@ class JobCard(models.Model):
     job_status = models.CharField(max_length=25,choices=job_status_options)
     payment_status = models.CharField(max_length=30,default='pending')
 
+
+class Tickets(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    subject = models.CharField(max_length=25)
+    message = models.TextField()
+    replay = models.TextField(blank=True)
+    attachments = models.FileField(blank=True,upload_to='replay_attachments')
+    status = models.BooleanField(default=False)
 
 
