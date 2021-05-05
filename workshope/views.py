@@ -3,16 +3,48 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User,auth
-from  workshope.models import Client,Vehicle,VehicleType,JobCard,VehicleRemarks,SparesInformation,Tickets
+from  workshope.models import Client,Vehicle,VehicleType,JobCard,VehicleRemarks,SparesInformation,Tickets,UserDetails
 from workshope.serializers import ClientSerializer,VehicleSerializer,VehicleTypeSerializer,JobCardSerializer,SparesInformationSerializer,TicketsSerializer
 from rest_framework import status
 from django.http import Http404
 import uuid
-
+from rest_framework.permissions import IsAuthenticated
+from workshope.permissions import check_permissionz
 
 # Create your views here.
 
+
+class HelloView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+        user = UserDetails.objects.get(user=request.user)
+        permissions = check_permissionz(user)
+        print(permissions,'ooo')
+        if permissions['acces_granted'] == True:
+            print('admin')
+        else:
+            print('staff')
+        content = {'message': 'Hello, World!'}
+        return Response(content)
+
+class AdminLoginView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self,request):
+        auth.logout(request)
+        return Response({"status":"logouted"})
+
+    def post(self,request):
+        username = request.data['username']
+        password = request.data['password']
+        user = auth.authenticate(username=username,password=password)
+        if user:
+            auth.login(request, user)
+            return Response({"status":"logined"})
+        else:
+            return Response({"status":"not logined"})
+
 class CreateClientDetails(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         client_data = Client.objects.all()
         if client_data:
@@ -30,6 +62,7 @@ class CreateClientDetails(APIView):
         return Response({'status':"client Created"})
 
 class EditClientDetails(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request,id):
         client_details = Client.objects.get(id=id)
         if client_details:
@@ -59,6 +92,7 @@ class EditClientDetails(APIView):
         return Response({"status":"item Deleted"})
 
 class AutoFetchNumber(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         mobile_number = request.query_params['mobile_number']
         client_data = Client.objects.filter(mobile_number=mobile_number)
@@ -69,6 +103,7 @@ class AutoFetchNumber(APIView):
             return Response({"status":"nope"})
 
 class CreateVehicleDetaills(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         vehicle_details = Vehicle.objects.all()
         if vehicle_details:
@@ -90,6 +125,7 @@ class CreateVehicleDetaills(APIView):
         return Response({'status':"createdd"})
 
 class EditVehicleDetaills(APIView):
+    permission_classes = (IsAuthenticated,)
 
     def get(self,request,id):
         vehicle_details = Vehicle.objects.get(id=id)
@@ -125,6 +161,7 @@ class EditVehicleDetaills(APIView):
         return Response({'status':"deleted"})
 
 class AutoFetchVehicle(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         client_id = request.query_params['client_id']
         client = Client.objects.get(id=client_id)
@@ -136,6 +173,8 @@ class AutoFetchVehicle(APIView):
             return Response({"status":"no_vehicles"})
 
 class CreateJobCard(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self,request):
         job_card_details = JobCard.objects.all()
         if job_card_details:
@@ -164,6 +203,7 @@ class CreateJobCard(APIView):
         return Response({"status":"wowow"})
 
 class EditJobCard(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request,id):
         job_card_details = JobCard.objects.get(id=id)
         if job_card_details:
@@ -185,6 +225,8 @@ class EditJobCard(APIView):
             return Response({'status':'no job right now'})
 
 class SparesInformationView(APIView):
+    permission_classes = (IsAuthenticated,)
+
     def get(self,request,id):
         jobcard = JobCard.objects.get(id=id)
         spares_info = jobcard.spares_realted_info.all()
@@ -195,6 +237,7 @@ class SparesInformationView(APIView):
             return Response({"status":"no spares righnow"})
 
     def post(self,request,id):
+        
         jobcard = JobCard.objects.get(id=id)
         spares_name = request.data['spares_name']
         description = request.data['description']
@@ -204,6 +247,7 @@ class SparesInformationView(APIView):
         return Response({'status':'woow'})
 
 class TrackingView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request,tracking_id):
         tracking_view = JobCard.objects.get(tracking_id=tracking_id)
         if tracking_view:
@@ -213,6 +257,7 @@ class TrackingView(APIView):
             return Response({"status":"no items avialable"})
 
 class ListingJobs(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request,status):
         jobs_data = JobCard.objects.filter(job_status=status)
         if jobs_data:
@@ -223,6 +268,7 @@ class ListingJobs(APIView):
 
 #admin only
 class SalesReportView(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         from_date = request.query_params['from_date']
         to_date = request.query_params['to_date']
@@ -236,9 +282,11 @@ class SalesReportView(APIView):
 #still didnt got idea what items to fetch
 class Notifications(APIView):
     def get(self,request):
+        
         return Response({"status":"go sent data her"})
 
-class RaiseTicket(APIView):
+class RaiseTicket(APIView,):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         ticket_id = request.query_params['ticket_id']
         ticket = Tickets.objects.get(id=ticket_id)
@@ -257,6 +305,7 @@ class RaiseTicket(APIView):
         return Response({'status':'woo'})
 
 class CloseTicket(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         ticket = Tickets.objects.all()
         if ticket:
@@ -278,6 +327,7 @@ class CloseTicket(APIView):
         return Response({"status":"ticket Closed"})
 
 class Invoicing(APIView):
+    permission_classes = (IsAuthenticated,)
     def get(self,request):
         invoices = JobCard.objects.filter(payment_status='Complete')
         if invoices:

@@ -1,6 +1,19 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
+
+class UserDetails(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    
+    roles = (
+        ('admin','admin'),
+        ('staff','staff'),
+    )
+    
+    permissions = models.CharField(max_length=20,choices=roles)
+
+
 
 class Client(models.Model):
     name = models.CharField(max_length=30)
@@ -37,6 +50,11 @@ class SparesInformation(models.Model):
     description = models.TextField()
     amount = models.FloatField()
 
+    def subtotal(self):
+        total = sum([amount for i in amount])
+        print(total,'hyeyy')
+        return total
+
 class JobCard(models.Model):
 
     job_card_types = (
@@ -70,4 +88,6 @@ class Tickets(models.Model):
     replay = models.TextField(blank=True)
     attachments = models.FileField(blank=True,upload_to='replay_attachments')
     status = models.BooleanField(default=False)
+
+
 
