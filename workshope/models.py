@@ -13,8 +13,6 @@ class UserDetails(models.Model):
     
     permissions = models.CharField(max_length=20,choices=roles)
 
-
-
 class Client(models.Model):
     name = models.CharField(max_length=30)
     mobile_number = models.CharField(max_length=10)
@@ -50,11 +48,6 @@ class SparesInformation(models.Model):
     description = models.TextField()
     amount = models.FloatField()
 
-    def subtotal(self):
-        total = sum([amount for i in amount])
-        print(total,'hyeyy')
-        return total
-
 class JobCard(models.Model):
 
     job_card_types = (
@@ -80,6 +73,11 @@ class JobCard(models.Model):
     spares_realted_info = models.ManyToManyField(SparesInformation)
     job_status = models.CharField(max_length=25,choices=job_status_options)
     payment_status = models.CharField(max_length=30,default='pending')
+
+    def subtotal(self):
+        total = self.spares_realted_info
+        print(total,'jjje')
+        return total
 
 class Tickets(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)

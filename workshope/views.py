@@ -21,9 +21,11 @@ class HelloView(APIView):
         permissions = check_permissionz(user)
         print(permissions,'ooo')
         if permissions['acces_granted'] == True:
-            print('admin')
+            # print('admin')
+            pass
         else:
-            print('staff')
+            # print('staff')
+            pass
         content = {'message': 'Hello, World!'}
         return Response(content)
 
@@ -270,14 +272,19 @@ class ListingJobs(APIView):
 class SalesReportView(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request):
-        from_date = request.query_params['from_date']
-        to_date = request.query_params['to_date']
-        sales_report = JobCard.objects.filter(date__range=[from_date,to_date],payment_status='Complete')
-        if sales_report:
-            sales_report_serializer = JobCardSerializer(sales_report,many=True)
-            return Response(sales_report_serializer.data)
+        user = UserDetails.objects.get(user=request.user)
+        permissions = check_permissionz(user)
+        if permissions['acces_granted'] == True:
+            from_date = request.query_params['from_date']
+            to_date = request.query_params['to_date']
+            sales_report = JobCard.objects.filter(date__range=[from_date,to_date],payment_status='Complete')
+            if sales_report:
+                sales_report_serializer = JobCardSerializer(sales_report,many=True)
+                return Response(sales_report_serializer.data)
+            else:
+                return Response({"status":"no reports available"})
         else:
-            return Response({"status":"no reports available"})
+            return Response({"status":"non-authorized"})
 
 #still didnt got idea what items to fetch
 class Notifications(APIView):
@@ -326,12 +333,18 @@ class CloseTicket(APIView):
         close_ticket.save()
         return Response({"status":"ticket Closed"})
 
+#admin ONly
 class Invoicing(APIView):
     permission_classes = (IsAuthenticated,)
     def get(self,request):
-        invoices = JobCard.objects.filter(payment_status='Complete')
-        if invoices:
-            job_card_serializer = JobCardSerializer(invoices,many=True)
-            return Response(job_card_serializer.data)
+        user = UserDetails.objects.get(user=request.user)
+        permissions = check_permissionz(user)
+        if permissions['acces_granted'] == True:
+            invoices = JobCard.objects.filter(payment_status='Complete')
+            if invoices:
+                job_card_serializer = JobCardSerializer(invoices,many=True)
+                return Response(job_card_serializer.data)
+            else:
+                return Response({"status":'no invoices'})
         else:
-            return Response({"status":'no invoices'})
+            return Response({"status":"non-authorized"})
