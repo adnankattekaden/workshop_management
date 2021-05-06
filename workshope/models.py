@@ -48,6 +48,7 @@ class SparesInformation(models.Model):
     description = models.TextField()
     amount = models.FloatField()
 
+
 class JobCard(models.Model):
 
     job_card_types = (
@@ -74,10 +75,6 @@ class JobCard(models.Model):
     job_status = models.CharField(max_length=25,choices=job_status_options)
     payment_status = models.CharField(max_length=30,default='pending')
 
-    def subtotal(self):
-        total = self.spares_realted_info
-        print(total,'jjje')
-        return total
 
 class Tickets(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)

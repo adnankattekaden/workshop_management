@@ -17,6 +17,5 @@ urlpatterns = [
     path('auto-fetch-number/',views.AutoFetchNumber.as_view(),name='auto_fetch_number'),
     path('auto-fetch-vehicle/',views.AutoFetchVehicle.as_view(),name='auto_fetch_vehicle'),   
     path('invoices/',views.Invoicing.as_view(),name='invoices'),
-    path('hello/',views.HelloView.as_view(),name='hello'),
     path('login/',views.AdminLoginView.as_view(),name='login')
 ]

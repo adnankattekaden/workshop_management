@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User,auth
-from  workshope.models import Client,Vehicle,VehicleType,JobCard,VehicleRemarks,SparesInformation,Tickets,UserDetails
+from  workshope.models import Client,Vehicle,VehicleType,JobCard,VehicleRemarks,SparesInformation,Tickets,UserDetails,VehicleRemarksAttachments
 from workshope.serializers import ClientSerializer,VehicleSerializer,VehicleTypeSerializer,JobCardSerializer,SparesInformationSerializer,TicketsSerializer
 from rest_framework import status
 from django.http import Http404
@@ -12,22 +12,6 @@ from rest_framework.permissions import IsAuthenticated
 from workshope.permissions import check_permissionz
 
 # Create your views here.
-
-
-class HelloView(APIView):
-    permission_classes = (IsAuthenticated,)
-    def get(self, request):
-        user = UserDetails.objects.get(user=request.user)
-        permissions = check_permissionz(user)
-        print(permissions,'ooo')
-        if permissions['acces_granted'] == True:
-            # print('admin')
-            pass
-        else:
-            # print('staff')
-            pass
-        content = {'message': 'Hello, World!'}
-        return Response(content)
 
 class AdminLoginView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -71,7 +55,7 @@ class EditClientDetails(APIView):
             client_serialize = ClientSerializer(client_details,many=False)
             return Response(client_serialize.data)
         else:
-            return Response({"status":"not avalible"})
+            return Response({"status":"not_avalaible"})
 
     def put(self,request,id):
         client_details =  Client.objects.get(id=id)
@@ -191,16 +175,21 @@ class CreateJobCard(APIView):
         x_coordinates = float(request.data['x_coordinates'])
         y_coordinates = float(request.data['y_coordinates'])
         notes = request.data['notes']
+        attachments = request.FILES['attachment']
 
+
+        vehicle_attachments = VehicleRemarksAttachments.objects.create(attachments=attachments)
         remarks = VehicleRemarks.objects.create(x_coordinates=x_coordinates,y_coordinates=y_coordinates,notes=notes)
+        remarks.attachments.add(vehicle_attachments)
+
         remarks_id = remarks
         myuuid = uuid.uuid4().hex[:8]
         tracking_id = 'track'+str(myuuid)
-        estimate_amount = request.data['estimate_amount']
         job_status = request.data['job_status']
-
+        estimate_amount = request.data['estimate_amount']
+        
         vehicle = Vehicle.objects.get(id=vehicle_id)
-        jobcard = JobCard.objects.create(vehicle=vehicle,job_card_types=job_type,tracking_id=tracking_id,estimate_amount=estimate_amount,job_status=job_status)
+        jobcard = JobCard.objects.create(vehicle=vehicle,job_card_types=job_type,tracking_id=tracking_id,job_status=job_status,estimate_amount=estimate_amount)
         jobcard.remarks.add(remarks_id)
         return Response({"status":"wowow"})
 
@@ -239,7 +228,6 @@ class SparesInformationView(APIView):
             return Response({"status":"no spares righnow"})
 
     def post(self,request,id):
-        
         jobcard = JobCard.objects.get(id=id)
         spares_name = request.data['spares_name']
         description = request.data['description']
@@ -289,7 +277,6 @@ class SalesReportView(APIView):
 #still didnt got idea what items to fetch
 class Notifications(APIView):
     def get(self,request):
-        
         return Response({"status":"go sent data her"})
 
 class RaiseTicket(APIView,):
@@ -326,7 +313,6 @@ class CloseTicket(APIView):
         replay = request.data['replay']
         replay_attachments = request.FILES['attachments']
         close_ticket = Tickets.objects.get(id=ticket_id)
-        print(replay,'hhhe')
         close_ticket.replay = replay
         close_ticket.attachments = replay_attachments
         close_ticket.status = True
